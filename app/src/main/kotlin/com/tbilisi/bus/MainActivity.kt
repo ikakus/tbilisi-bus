@@ -1,19 +1,23 @@
 package com.tbilisi.bus
 
-import android.support.v4.app.Fragment
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
+import android.view.View
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.tbilisi.bus.fragments.BusMapFragment
+import com.tbilisi.bus.fragments.FavoritesFragment
 import com.tbilisi.bus.fragments.HistoryFragment
 import com.tbilisi.bus.fragments.InfoFragment
-import com.tbilisi.bus.fragments.MapFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-class MainActivity() : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     var activeFragmentId = R.id.drawer_map
     var drawerToggle: ActionBarDrawerToggle? = null
 
@@ -24,12 +28,44 @@ class MainActivity() : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         setupNavigationDrawer()
+        setupAds()
 
-        activeFragmentId = savedInstanceState?.getInt("fragment") ?: activeFragmentId
+        activeFragmentId = savedInstanceState?.getInt("fragment") ?: getSavedFragmentId() ?: activeFragmentId
 
         setActive(activeFragmentId)
+    }
 
-        DatabaseManager(this).initialize()
+    fun setupAds() {
+        if(BuildConfig.FLAVOR == "adfree") {
+            adView.visibility = View.GONE
+            return
+        }
+        adView.adListener = object : AdListener() {
+            override fun onAdFailedToLoad(p0: Int) {
+                adView.visibility = View.GONE
+                super.onAdFailedToLoad(p0)
+            }
+
+            override fun onAdLoaded() {
+                adView.visibility = View.VISIBLE
+                super.onAdLoaded()
+            }
+        }
+        val adRequest = AdRequest.Builder()
+                .addTestDevice(resources.getString(R.string.ads_test_device))
+                .build()
+        adView.loadAd(adRequest)
+    }
+
+    fun getSavedFragmentId(): Int? {
+        val lastFragmentId = getSharedPreferences("default", 0).getInt("lastFragment", -1)
+        if(lastFragmentId == -1)
+            return null
+        return lastFragmentId
+    }
+
+    fun saveFragmentId(id: Int) {
+        getSharedPreferences("default", 0).edit().putInt("lastFragment", id).apply()
     }
 
     override fun onDestroy() {
@@ -37,14 +73,24 @@ class MainActivity() : AppCompatActivity() {
     }
 
     fun setActive(fragmentId: Int): Boolean {
+        drawer.setCheckedItem(fragmentId)
         when (fragmentId) {
             R.id.drawer_map -> {
-                setFragment(MapFragment())
+                saveFragmentId(fragmentId)
+                setFragment(BusMapFragment())
                 supportActionBar?.title = getString(R.string.title_map)
                 activeFragmentId = fragmentId
                 return true
             }
+            R.id.drawer_favorites -> {
+                saveFragmentId(fragmentId)
+                setFragment(FavoritesFragment())
+                supportActionBar?.title = getString(R.string.title_favorites)
+                activeFragmentId = fragmentId
+                return true
+            }
             R.id.drawer_history -> {
+                saveFragmentId(fragmentId)
                 setFragment(HistoryFragment())
                 supportActionBar?.title = getString(R.string.title_history)
                 activeFragmentId = fragmentId
@@ -55,6 +101,7 @@ class MainActivity() : AppCompatActivity() {
                 return true
             }
             R.id.drawer_info -> {
+                saveFragmentId(fragmentId)
                 setFragment(InfoFragment())
                 supportActionBar?.title = getString(R.string.title_info)
                 activeFragmentId = fragmentId
@@ -69,7 +116,9 @@ class MainActivity() : AppCompatActivity() {
     }
 
     fun setFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().replace(R.id.content_layout, fragment).commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.content_layout, fragment)
+            .commit()
     }
 
     fun setupNavigationDrawer() {
@@ -98,7 +147,7 @@ class MainActivity() : AppCompatActivity() {
     }
 
     fun switchLocale() {
-        if (Locale.getDefault().equals(Locale("ka"))) {
+        if (Locale.getDefault() == Locale("ka")) {
             setLocale("en")
         } else {
             setLocale("ka")

@@ -17,9 +17,11 @@ class App : Application() {
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build())
         }
+
+        DatabaseManager(this).initialize()
+
         super.onCreate()
     }
 }

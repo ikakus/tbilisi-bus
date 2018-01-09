@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="clear_history">ისტორიის გაწმენდა</string>
+    <string name="history_cleared">ისტორია გაწმენდილია</string>
     <string name="title_map">რუკა</string>
     <string name="title_history">ისტორია</string>
     <string name="locate">მომძებნე</string>
     <string name="change_language">English</string>
     <string name="title_info">ინფორმაცია</string>
-    <string name="info_uri">file:///android_asset/info-ka.html</string>
+    <string name="info_uri">file:///android_asset/info/index-ka.html</string>
     <string name="search">ძებნა</string>
     <string name="search_hint">სახელი ან ID</string>
     <string name="service_url">http://transit.ttc.com.ge/pts-portal-services/servlet/stopArrivalTimesServlet</string>
     <string name="schedule">ტაბლო</string>
+    <string name="loading">იტვირთება</string>
+    <string name="refresh">განახლება</string>
+    <string name="no_data">ინფორმაცია არ არის</string>
+    <string name="error">დაფიქსირდა შეცდომა</string>
+    <string name="favorite">ფავორიტი</string>
+    <string name="title_favorites">ფავორიტები</string>
+    <string name="clear_favorites">ფავორიტების გაწმენდა</string>
+    <string name="favorites_cleared">ფავორიტები გაწმენდილია</string>
+    <string name="time_format">%dწთ</string>
 </resources>
